@@ -1,0 +1,34 @@
+services:
+  cinny:
+    image: ghcr.io/cinnyapp/cinny:latest
+    container_name: cinny
+    restart: unless-stopped
+    configs:
+      - source: cinny-config
+        target: /app/config.json
+    networks:
+      - cinny-workspace-network
+configs:
+  cinny-config:
+    content: |-
+      {
+        "defaultHomeserver": 0,
+        "homeserverList": [
+          "${MATRIX_DOMAIN}"
+        ],
+        "allowCustomHomeservers": true,
+        "featuredCommunities": {
+          "openAsDefault": false,
+          "spaces": [],
+          "rooms": [],
+          "servers": ["mozilla.org"]
+        },
+
+        "hashRouter": {
+          "enabled": false,
+          "basename": "/"
+        }
+      }
+networks:
+  cinny-workspace-network:
+    external: true

@@ -1,0 +1,4 @@
+services:
+  cinny:
+    ports:
+      - "3000:80"
