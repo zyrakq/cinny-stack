@@ -91,12 +91,22 @@ Access: `http://localhost:3000` (for forwarding mode)
 
 - **devcontainer**: Development environment with workspace network
 - **forwarding**: Development environment with port forwarding (3000:80)
-- **letsencrypt**: Production with Let's Encrypt SSL certificates
-- **step-ca**: Production with Step CA SSL certificates
+- **letsencrypt**: Production with Let's Encrypt SSL certificates and nginx reverse proxy
+- **step-ca**: Production with Step CA SSL certificates and nginx reverse proxy
 
 ### Extensions
 
 Currently no extensions are configured. Cinny provides a simple, lightweight Matrix client experience without complex integrations.
+
+### Nginx Reverse Proxy
+
+The **letsencrypt** and **step-ca** environments include an integrated nginx reverse proxy that provides:
+
+- **Matrix API routing**: Routes `/_matrix/*` requests to the Matrix homeserver backend
+- **Client routing**: Routes all other requests to the Cinny frontend
+- **Well-known endpoints**: Automatic Matrix federation discovery endpoints
+- **SSL termination**: Handles HTTPS certificates and encryption
+- **Load balancing**: Distributes traffic between frontend and backend services
 
 ### Available Configurations
 
@@ -118,17 +128,21 @@ Currently no extensions are configured. Cinny provides a simple, lightweight Mat
 
 - `SYNAPSE_SERVER_NAME`: Server name for Cinny (e.g., cinny.example.com)
 - `VIRTUAL_PORT`: Port for nginx-proxy (default: 80)
-- `VIRTUAL_HOST`: Domain for nginx-proxy
+- `VIRTUAL_HOST`: Domain for nginx-proxy (e.g., cinny.example.com)
 - `LETSENCRYPT_HOST`: Domain for SSL certificate
 - `LETSENCRYPT_EMAIL`: Email for certificate registration
+- `BACKEND_DOMAIN`: Matrix homeserver backend address (e.g., conduit:6167)
+- `FRONTEND_DOMAIN`: Cinny frontend service name (default: cinny)
 
 ### Step CA Configuration
 
 - `SYNAPSE_SERVER_NAME`: Server name for Cinny (e.g., cinny.local)
 - `VIRTUAL_PORT`: Port for nginx-proxy (default: 80)
-- `VIRTUAL_HOST`: Domain for nginx-proxy
+- `VIRTUAL_HOST`: Domain for nginx-proxy (e.g., cinny.local)
 - `LETSENCRYPT_HOST`: Domain for SSL certificate
 - `LETSENCRYPT_EMAIL`: Email for certificate registration
+- `BACKEND_DOMAIN`: Matrix homeserver backend address (e.g., conduit:6167)
+- `FRONTEND_DOMAIN`: Cinny frontend service name (default: cinny)
 
 ## 🔐 Authentication
 
@@ -166,8 +180,24 @@ All component files follow the standard Docker Compose naming convention (`docke
 
 - **Development**: `cinny-network` (internal)
 - **DevContainer**: `cinny-workspace-network` (external)
-- **Let's Encrypt**: `letsencrypt-network` (external)
-- **Step CA**: `step-ca-network` (external)
+- **Let's Encrypt**: `letsencrypt-network` (external) + `cinny-network` (internal)
+- **Step CA**: `step-ca-network` (external) + `cinny-network` (internal)
+
+### Network Architecture
+
+```sh
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   SSL Manager   │    │  Nginx Proxy    │    │ Matrix Backend  │
+│ (letsencrypt/   │◄──►│  (Port 80/443)  │◄──►│ (synapse/       │
+│  step-ca)       │    │                 │    │  conduit)       │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+                                │
+                                ▼
+                       ┌─────────────────┐
+                       │ Cinny Frontend  │
+                       │   (Port 80)     │
+                       └─────────────────┘
+```
 
 ## 🔒 Security
 
@@ -270,3 +300,13 @@ Cinny works seamlessly with:
 - **Conduit**: Fast Matrix homeserver written in Rust
 - **Custom Homeservers**: Any Matrix-compatible server
 - **Matrix Bridges**: Connect to other chat platforms
+
+### Reverse Proxy Integration
+
+The nginx reverse proxy automatically handles:
+
+- **API Routing**: `/_matrix/*` → Matrix homeserver backend
+- **Static Content**: `/` → Cinny frontend application
+- **Federation**: `/.well-known/matrix/*` → Matrix discovery endpoints
+- **CORS Headers**: Proper cross-origin resource sharing for Matrix clients
+- **SSL/TLS**: Automatic HTTPS termination and certificate management
