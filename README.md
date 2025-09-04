@@ -23,6 +23,11 @@ Local domain stack with trusted self-signed certificates for virtual network dep
 Matrix homeserver implementation providing the backend infrastructure for Cinny client. Includes PostgreSQL backend and multiple deployment configurations.
 [Learn more about Matrix Synapse configuration](src/matrix/synapse/README.md).
 
+#### [⚡ Conduit](src/matrix/conduit)
+
+Lightweight Rust-based Matrix homeserver with minimal resource usage and RocksDB backend. Provides complete Matrix federation support with OIDC integration capabilities and modular deployment configurations.
+[Learn more about Conduit configuration](src/matrix/conduit/README.md).
+
 ## 🌐 Services
 
 ### 🌐 [Cinny](src/cinny/)
@@ -41,7 +46,8 @@ Each component has its own README with detailed setup instructions. Choose the c
    - Development: Use Step CA Manager
 
 2. **Deploy Matrix Backend:**
-   - Set up Synapse homeserver
+   - Set up Synapse homeserver (full-featured, PostgreSQL-based)
+   - Or set up Conduit homeserver (lightweight, Rust-based)
 
 3. **Deploy Cinny:**
    - Configure Cinny client to connect to your Matrix homeserver
@@ -50,10 +56,10 @@ Each component has its own README with detailed setup instructions. Choose the c
 
 ```sh
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│      Cinny      │────│  Matrix Synapse │────│   PostgreSQL    │
-│   (Frontend)    │    │   (Homeserver)  │    │   (Database)    │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-                                │
+│      Cinny      │────│ Matrix Homeserver│────│    Database     │
+│   (Frontend)    │    │ (Synapse/Conduit)│    │(PostgreSQL/     │
+└─────────────────┘    └─────────────────┘    │ RocksDB)        │
+                                │              └─────────────────┘
                                 │
                        ┌─────────────────┐
                        │  SSL Manager    │
@@ -89,6 +95,10 @@ docker-compose up -d
 # Synapse with port forwarding
 cd src/matrix/synapse/build/forwarding/base/
 docker-compose up -d
+
+# Conduit with port forwarding
+cd src/matrix/conduit/src/conduit/build/forwarding/base/
+docker-compose up -d
 ```
 
 ### Production Environment
@@ -101,6 +111,10 @@ docker-compose up -d
 # Synapse with Let's Encrypt SSL
 cd src/matrix/synapse/build/letsencrypt/base/
 docker-compose up -d
+
+# Conduit with Let's Encrypt SSL
+cd src/matrix/conduit/src/conduit/build/letsencrypt/base/
+docker-compose up -d
 ```
 
 ### DevContainer Environment
@@ -112,6 +126,10 @@ docker-compose up -d
 
 # Synapse in DevContainer
 cd src/matrix/synapse/build/devcontainer/base/
+docker-compose up -d
+
+# Conduit in DevContainer
+cd src/matrix/conduit/src/conduit/build/devcontainer/base/
 docker-compose up -d
 ```
 
@@ -139,6 +157,9 @@ docker logs cinny
 # Synapse logs
 docker logs matrix
 
+# Conduit logs
+docker logs conduit
+
 # SSL automation logs
 docker logs letsencrypt-manager  # or step-ca-manager
 ```
@@ -147,6 +168,7 @@ docker logs letsencrypt-manager  # or step-ca-manager
 
 - [Cinny Configuration](src/cinny/README.md)
 - [Matrix Synapse Setup](src/matrix/synapse/README.md)
+- [Matrix Conduit Setup](src/matrix/conduit/README.md)
 - [SSL Automation](src/ssl-automation/)
 
 ## 🤝 Contributing
@@ -169,3 +191,4 @@ This project is dual-licensed under:
 - [Matrix.org](https://matrix.org/) - Open network for secure, decentralized communication
 - [Cinny](https://cinny.in/) - Simple, elegant and secure Matrix client
 - [Synapse](https://github.com/matrix-org/synapse) - Matrix homeserver implementation
+- [Conduit](https://conduit.rs/) - Lightweight Matrix homeserver written in Rust

@@ -7,3 +7,6 @@
 [submodule "src/matrix/synapse"]
 	path = src/matrix/synapse
 	url = https://github.com/zyrakq/synapse-stack.git
+[submodule "src/matrix/conduit"]
+	path = src/matrix/conduit
+	url = https://github.com/zyrakq/conduit-stack.git

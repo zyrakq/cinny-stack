@@ -3,6 +3,11 @@ services:
     image: ghcr.io/cinnyapp/cinny:latest
     container_name: cinny
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 10m
+        max-file: 3
     configs:
       - source: cinny-config
         target: /app/config.json
