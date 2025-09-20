@@ -2,180 +2,111 @@
 
 A modular Docker Compose configuration system for Cinny client with support for multiple environments and simplified configuration.
 
-## 🏗️ Project Structure
-
-```sh
-src/cinny/
-├── components/                              # Source compose components
-│   ├── base/                               # Base components
-│   │   ├── docker-compose.yml              # Main Cinny service
-│   │   └── .env.example                    # Base environment variables
-│   ├── environments/                       # Environment components
-│   │   ├── devcontainer/
-│   │   │   └── docker-compose.yml          # DevContainer environment
-│   │   ├── forwarding/
-│   │   │   └── docker-compose.yml          # Development with port forwarding
-│   │   ├── letsencrypt/
-│   │   │   ├── docker-compose.yml          # Let's Encrypt SSL
-│   │   │   └── .env.example                # Let's Encrypt variables
-│   │   └── step-ca/
-│   │       ├── docker-compose.yml          # Step CA SSL
-│   │       └── .env.example                # Step CA variables
-│   └── extensions/                         # Extension components (currently empty)
-│       └── .gitkeep                        # Placeholder for future extensions
-├── build/                        # Generated configurations (auto-generated)
-│   ├── devcontainer/
-│   │   └── base/                 # DevContainer + base
-│   ├── forwarding/
-│   │   └── base/                 # Development + base
-│   ├── letsencrypt/
-│   │   └── base/                 # Let's Encrypt + base
-│   └── step-ca/
-│       └── base/                 # Step CA + base
-├── build.sh                      # Build script
-└── README.md                     # This file
-```
-
 ## 🚀 Quick Start
 
 ### 1. Build Configurations
 
-Run the build script to generate all possible combinations:
+Generate all environment configurations using [stackbuilder](https://github.com/zyrakq/stackbuilder):
 
 ```bash
-./build.sh
+sb build
 ```
 
-This will create all combinations in the `build/` directory.
+This creates ready-to-use Docker Compose configurations in the `build/` directory.
 
 ### 2. Choose Your Configuration
 
-Navigate to the desired configuration directory:
+Navigate to your desired environment:
 
 ```bash
-# For development with port forwarding
-cd build/forwarding/base/
+# Development with port forwarding (localhost:3000)
+cd build/forwarding/
 
-# For DevContainer environment
-cd build/devcontainer/base/
+# DevContainer environment
+cd build/devcontainer/
 
-# For production with Let's Encrypt SSL
-cd build/letsencrypt/base/
+# Production with Let's Encrypt SSL
+cd build/letsencrypt/
 
-# For production with Step CA SSL
-cd build/step-ca/base/
+# Production with Step CA SSL
+cd build/step-ca/
 ```
 
 ### 3. Configure Environment
 
-Copy and edit the environment file:
+Copy and customize the environment file:
 
 ```bash
 cp .env.example .env
-# Edit .env with your values
+# Edit .env with your Matrix homeserver details
 ```
 
 ### 4. Deploy
 
-Start the services:
+Start the Cinny service:
 
 ```bash
-docker-compose up -d
+docker compose up --build -d
 ```
 
 Access: `http://localhost:3000` (for forwarding mode)
 
-## 🔧 Available Configurations
+## 📁 Directory Structure
 
-### Environments
+- **`components/`** - Source configuration files
+  - `base/` - Core Cinny service definition
+  - `environments/` - Environment-specific configurations
+- **`build/`** - Generated configurations (created by `sb build`)
+- **`stackbuilder.toml`** - Build configuration for stackbuilder
 
-- **devcontainer**: Development environment with workspace network
-- **forwarding**: Development environment with port forwarding (3000:80)
-- **letsencrypt**: Production with Let's Encrypt SSL certificates
-- **step-ca**: Production with Step CA SSL certificates
+## 🔧 Available Environments
 
-### Extensions
+- **devcontainer** - Development environment with workspace network
+- **forwarding** - Development with port forwarding (3000:80)
+- **letsencrypt** - Production with Let's Encrypt SSL certificates
+- **step-ca** - Production with Step CA SSL certificates
 
-Currently no extensions are configured. Cinny provides a simple, lightweight Matrix client experience without complex integrations.
-
-### Available Configurations
-
-**Base configurations:**
-
-- `devcontainer/base` - DevContainer development setup
-- `forwarding/base` - Development with port forwarding
-- `letsencrypt/base` - Production with Let's Encrypt SSL
-- `step-ca/base` - Production with Step CA SSL
-
-## 🔧 Environment Variables
+## ⚙️ Environment Variables
 
 ### Base Configuration
 
-- `MATRIX_TZ`: Timezone for Cinny services
-- `MATRIX_DOMAIN`: Matrix homeserver domain (e.g., matrix.example.com)
+- `MATRIX_TZ` - Timezone for Cinny services
+- `MATRIX_DOMAIN` - Matrix homeserver domain (e.g., matrix.example.com)
 
-### Let's Encrypt Configuration
+### SSL Configurations (Let's Encrypt & Step CA)
 
-- `SYNAPSE_SERVER_NAME`: Server name for Cinny (e.g., cinny.example.com)
-- `VIRTUAL_PORT`: Port for nginx-proxy (default: 80)
-- `VIRTUAL_HOST`: Domain for nginx-proxy
-- `LETSENCRYPT_HOST`: Domain for SSL certificate
-- `LETSENCRYPT_EMAIL`: Email for certificate registration
-
-### Step CA Configuration
-
-- `SYNAPSE_SERVER_NAME`: Server name for Cinny (e.g., cinny.local)
-- `VIRTUAL_PORT`: Port for nginx-proxy (default: 80)
-- `VIRTUAL_HOST`: Domain for nginx-proxy
-- `LETSENCRYPT_HOST`: Domain for SSL certificate
-- `LETSENCRYPT_EMAIL`: Email for certificate registration
+- `SYNAPSE_SERVER_NAME` - Server name for Cinny (e.g., cinny.example.com)
+- `VIRTUAL_PORT` - Port for nginx-proxy (default: 80)
+- `VIRTUAL_HOST` - Domain for nginx-proxy
+- `LETSENCRYPT_HOST` - Domain for SSL certificate
+- `LETSENCRYPT_EMAIL` - Email for certificate registration
 
 ## 🔐 Authentication
 
-Cinny uses the Matrix homeserver's built-in authentication. For advanced authentication features, configure your Matrix homeserver (Synapse) with OIDC or other identity providers.
+Cinny uses your Matrix homeserver's built-in authentication. Configure your homeserver (Synapse, Dendrite, or Conduit) with OIDC or other identity providers for advanced authentication features.
 
-## 🛠️ Development
+## 🛠️ Customization
+
+### Modifying Configurations
+
+1. Edit files in `components/` directory
+2. Run `sb build` to regenerate configurations
+3. The `build/` directory will be recreated with your changes
 
 ### Adding New Environments
 
-1. Create directory in `components/environments/` with `docker-compose.yml` and optional `.env.example` file
-2. Run `./build.sh` to generate new combinations
+1. Create a new directory in `components/environments/`
+2. Add `docker-compose.yml` and optional `.env.example`
+3. Update `stackbuilder.toml` to include the new environment
+4. Run `sb build`
 
-### Adding New Extensions
-
-1. Create directory in `components/extensions/` with `docker-compose.yml` and optional `.env.example` file
-2. Run `./build.sh` to generate new combinations with all environments
-3. Extensions are automatically combined with all available environments
-
-### File Naming Convention
-
-All component files follow the standard Docker Compose naming convention (`docker-compose.yml`) for:
-
-- **VS Code compatibility**: Full support for Docker Compose language features and IntelliSense
-- **IDE integration**: Proper syntax highlighting and validation in all major editors
-- **Tool compatibility**: Works with Docker Compose plugins and extensions
-- **Standard compliance**: Follows official Docker Compose file naming patterns
-
-### Modifying Existing Components
-
-1. Edit the component files in `components/`
-2. Run `./build.sh` to regenerate configurations
-3. The `build/` directory will be completely recreated
-
-## 🌐 Networks
-
-- **Development**: `cinny-network` (internal)
-- **DevContainer**: `cinny-workspace-network` (external)
-- **Let's Encrypt**: `letsencrypt-network` (external)
-- **Step CA**: `step-ca-network` (external)
-
-## 🔒 Security
+## 🔒 Security Notes
 
 ⚠️ **Production Checklist:**
 
 - Configure proper Matrix homeserver URL
-- Set up proper firewall rules
-- Regular security updates
+- Set up firewall rules
+- Enable regular security updates
 - Configure rate limiting
 - Set up proper logging
 - Validate SSL certificates
@@ -184,89 +115,38 @@ All component files follow the standard Docker Compose naming convention (`docke
 
 **Build Issues:**
 
-- Ensure `yq` is installed: <https://github.com/mikefarah/yq#install>
-- Check component file syntax
-- Verify all required files exist
+- Ensure stackbuilder is installed: `cargo install stackbuilder`
+- Check `stackbuilder.toml` syntax
+- Verify component files exist
 
 **Cinny Issues:**
 
-- Check config.json syntax
-- Verify Matrix homeserver connection
+- Check Matrix homeserver connection
 - Review container logs: `docker logs cinny`
+- Verify CORS configuration on homeserver
 - Check network connectivity
-
-**SSL Issues:**
-
-- **Let's Encrypt**: Verify domain DNS and letsencrypt-manager
-- **Step CA**: Check step-ca-manager and virtual network config
-
-**Matrix Connection Issues:**
-
-- Verify Matrix homeserver is accessible
-- Check CORS configuration on homeserver
-- Validate SSL certificates
-- Check network connectivity between Cinny and Matrix
-
-## 📝 Notes
-
-- The `build/` directory is automatically generated and should not be edited manually
-- Environment variables in generated files use `$VARIABLE_NAME` format for proper interpolation
-- Each generated configuration includes a complete `docker-compose.yml` and `.env.example`
-- Missing `.env.*` files for components are handled gracefully by the build script
-- Cinny requires proper Matrix homeserver configuration for functionality
-
-## 🔄 Configuration Management
-
-The build system automatically:
-
-- Merges base and environment configurations
-- Copies additional files and configurations
-- Generates complete deployment configurations
-- Preserves user `.env` files during rebuilds
-
-**Build approach:**
-
-```bash
-./build.sh
-cd build/forwarding/base/
-cp .env.example .env
-# Edit .env with your values
-docker-compose up -d
-```
 
 ## 🎨 Cinny Features
 
-The Cinny configuration includes:
-
-- **Clean UI**: Simple, elegant and intuitive interface
-- **Lightweight**: Minimal resource usage and fast loading
-- **Secure**: End-to-end encryption support
-- **Customizable**: Theme and appearance customization
-- **Cross-platform**: Works on desktop and mobile browsers
-- **Matrix Native**: Full Matrix protocol support
-- **Spaces Support**: Organize rooms with Matrix Spaces
-- **Media Support**: Image, video, and file sharing
-
-## ⚙️ Advanced Configuration
-
-For detailed configuration options of the Cinny client, including customization and theming, see the official Cinny documentation:
-
-📖 **[Cinny Configuration Guide](https://github.com/cinnyapp/cinny)**
-
-This guide covers:
-
-- Homeserver configuration options
-- Theme and appearance customization
-- Featured communities and rooms setup
-- Hash router configuration
-- Custom homeserver settings
+- **Clean UI** - Simple, elegant and intuitive interface
+- **Lightweight** - Minimal resource usage and fast loading
+- **Secure** - End-to-end encryption support
+- **Customizable** - Theme and appearance customization
+- **Cross-platform** - Works on desktop and mobile browsers
+- **Matrix Native** - Full Matrix protocol support
+- **Spaces Support** - Organize rooms with Matrix Spaces
+- **Media Support** - Image, video, and file sharing
 
 ## 🔗 Integration
 
 Cinny works seamlessly with:
 
-- **Matrix Synapse**: Primary Matrix homeserver
-- **Dendrite**: Lightweight Matrix homeserver
-- **Conduit**: Fast Matrix homeserver written in Rust
-- **Custom Homeservers**: Any Matrix-compatible server
-- **Matrix Bridges**: Connect to other chat platforms
+- **Matrix Synapse** - Primary Matrix homeserver
+- **Dendrite** - Lightweight Matrix homeserver  
+- **Conduit** - Fast Matrix homeserver written in Rust
+- **Custom Homeservers** - Any Matrix-compatible server
+- **Matrix Bridges** - Connect to other chat platforms
+
+---
+
+**Note:** The `build/` directory is automatically generated by stackbuilder and should not be edited manually. Always modify source files in `components/` and regenerate using `sb build`.
