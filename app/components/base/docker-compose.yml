@@ -1,0 +1,17 @@
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: ${LOG_MAX_SIZE:-10m}
+    max-file: ${LOG_MAX_FILE:-3}
+    compress: ${LOG_COMPRESS:-true}
+
+services:   
+  cinny:
+    container_name: cinny
+    image: cinny
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM ${IMAGE:-ghcr.io/cinnyapp/cinny:latest}
+        COPY config.json /app/
+    logging: *default-logging

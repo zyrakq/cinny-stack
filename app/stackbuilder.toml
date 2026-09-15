@@ -1,0 +1,10 @@
+[paths]
+environments_path = "./environments"
+extensions_dirs = []
+
+[build]
+copy_additional_files = true
+env_file_patterns = [".env", "config.json"]
+
+[build.environments]
+available = ["forwarding", "letsencrypt", "step-ca"]

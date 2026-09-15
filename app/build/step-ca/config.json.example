@@ -1,0 +1,18 @@
+{
+    "defaultHomeserver": 0,
+    "homeserverList": [
+        "matrix.com"
+    ],
+    "allowCustomHomeservers": true,
+    "featuredCommunities": {
+        "openAsDefault": false,
+        "spaces": [],
+        "rooms": [],
+        "servers": []
+    },
+
+    "hashRouter": {
+        "enabled": false,
+        "basename": "/"
+    }
+}

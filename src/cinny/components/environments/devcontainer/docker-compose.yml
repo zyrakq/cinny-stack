@@ -1,8 +1,0 @@
-services:
-  cinny:
-    networks:
-      - cinny-workspace-network
-
-networks:
-  cinny-workspace-network:
-    external: true
